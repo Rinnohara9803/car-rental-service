@@ -9,8 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-import '../config.dart';
-import '../models/car.dart';
+import '../providers/car.dart';
 import '../utilities/snackbars.dart';
 import '../utilities/themes.dart';
 import '../widgets/circular_progress_indicator.dart';
@@ -35,6 +34,7 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
 
   bool _isLoading = false;
   XFile? image;
+  TheCar? car;
 
   void clearForm() {
     _carNameController!.clear();
@@ -52,11 +52,67 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
+    _formKey.currentState!.save();
     setState(() {
       _isLoading = true;
     });
-
-    _formKey.currentState!.save();
+    TheCar newCar = TheCar(
+      id: '',
+      name: _carNameController!.text,
+      description: _carDescriptionController!.text,
+      numberPlate: _carNumberController!.text,
+      horsePower: int.parse(
+        _horsePowerController!.text,
+      ),
+      mileage: int.parse(_mileageController!.text),
+      price: int.parse(
+        _priceController!.text,
+      ),
+      image: '',
+    );
+    if (image == null) {
+      await car!
+          .updateCarWithoutImage(
+        newCar,
+      )
+          .then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
+      }).catchError((e) {
+        setState(() {
+          _isLoading = false;
+        });
+        SnackBars.showErrorSnackBar(context, e.toString());
+      });
+    } else {
+      await car!
+          .updateCarWithImage(
+        newCar,
+        image!,
+      )
+          .then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
+      }).catchError((e) {
+        if (e.toString() == 'XMLHttpRequest error.') {
+          SnackBars.showErrorSnackBar(
+              context, 'Image size should be less than 2mb.');
+          return;
+        }
+        SnackBars.showErrorSnackBar(context, e.toString());
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   File? _selectedImage;
@@ -87,16 +143,20 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final car = Provider.of<TheCar>(context);
-    _carNameController = TextEditingController(text: car.name);
-    _carDescriptionController = TextEditingController(text: car.description);
-    _carNumberController = TextEditingController(text: car.numberPlate);
-    _mileageController = TextEditingController(text: car.mileage.toString());
+  void didChangeDependencies() {
+    car = Provider.of<TheCar>(context);
+    _carNameController = TextEditingController(text: car!.name);
+    _carDescriptionController = TextEditingController(text: car!.description);
+    _carNumberController = TextEditingController(text: car!.numberPlate);
+    _mileageController = TextEditingController(text: car!.mileage.toString());
     _horsePowerController =
-        TextEditingController(text: car.horsePower.toString());
-    _priceController = TextEditingController(text: car.price.toString());
-    _imageName = 'http://${Config.authority}/storage/${car.image}';
+        TextEditingController(text: car!.horsePower.toString());
+    _priceController = TextEditingController(text: car!.price.toString());
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: ResponsiveBuilder(
         builder: (context, si) {
@@ -105,8 +165,8 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
               children: [
                 const ShowWidget(),
                 ChangeNotifierProvider<TheCar>.value(
-                  value: car,
-                  child: signInForm(),
+                  value: car!,
+                  child: updateCarDetailsForm(),
                 ),
               ],
             );
@@ -115,15 +175,15 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
               children: [
                 const ShowWidget(),
                 ChangeNotifierProvider<TheCar>.value(
-                  value: car,
-                  child: signInForm(),
+                  value: car!,
+                  child: updateCarDetailsForm(),
                 ),
               ],
             );
           } else {
             return ChangeNotifierProvider<TheCar>.value(
-              value: car,
-              child: signInForm(),
+              value: car!,
+              child: updateCarDetailsForm(),
             );
           }
         },
@@ -131,7 +191,7 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
     );
   }
 
-  Flexible signInForm() {
+  Flexible updateCarDetailsForm() {
     final car = Provider.of<TheCar>(context);
     return Flexible(
       child: ChangeNotifierProvider<TheCar>.value(
@@ -152,7 +212,6 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
   }
 
   Padding signInWidget(bool isMobileView) {
-    final car = Provider.of<TheCar>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(
         vertical: 15,
@@ -453,7 +512,7 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
               const SizedBox(
                 height: 10,
               ),
-              if (_selectedImage != null)
+              if (_selectedImage != null || image != null)
                 Row(
                   children: [
                     SizedBox(
@@ -487,7 +546,6 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
                         ),
                         onPressed: () {
                           setState(() {
-                            _selectedImage = null;
                             image = null;
                           });
                         },
@@ -514,44 +572,7 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
                       ),
                       child: InkWell(
                         onTap: () async {
-                          _saveForm().then((value) async {
-                            setState(() {
-                              _isLoading = true;
-                            });
-                            TheCar newCar = TheCar(
-                              id: '',
-                              name: _carNameController!.text,
-                              description: _carDescriptionController!.text,
-                              numberPlate: _carNumberController!.text,
-                              horsePower: int.parse(
-                                _horsePowerController!.text,
-                              ),
-                              mileage: int.parse(_horsePowerController!.text),
-                              price: int.parse(
-                                _priceController!.text,
-                              ),
-                              image: '',
-                            );
-                            await car
-                                .updateCarWithoutImage(
-                              newCar,
-                            )
-                                .then((value) {
-                              setState(() {
-                                _isLoading = false;
-                              });
-                              Navigator.of(context).pop();
-                            }).catchError((e) {
-                              setState(() {
-                                _isLoading = false;
-                              });
-                              SnackBars.showErrorSnackBar(
-                                  context, e.toString());
-                            });
-                          });
-                          setState(() {
-                            _isLoading = false;
-                          });
+                          _saveForm();
                         },
                         child: Container(
                           height: 50,

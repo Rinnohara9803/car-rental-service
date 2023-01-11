@@ -2,6 +2,7 @@ import 'package:car_rental_service/pages/about_us_page.dart';
 import 'package:car_rental_service/pages/bookings_page.dart';
 import 'package:car_rental_service/pages/cars_page.dart';
 import 'package:car_rental_service/utilities/themes.dart';
+import 'package:car_rental_service/widgets/header_widget.dart';
 import 'package:car_rental_service/widgets/on_hover_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../models/car.dart';
+import '../providers/car.dart';
 import '../providers/cars_provider.dart';
 import '../widgets/car_widget.dart';
 import '../widgets/profile_widget.dart';
@@ -85,73 +86,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (!isMobileView) const SearchWidget(),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets(
-                          'Home', ThemeClass.primaryColor, () {}),
-                    ),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets('Bookings', Colors.black, () {
-                        Navigator.pushNamed(context, BookingsPage.routeName);
-                      }),
-                    ),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets('Cars', Colors.black, () {
-                        Navigator.pushNamed(context, CarsPage.routeName);
-                      }),
-                    ),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets('About Us', Colors.black, () {
-                        Navigator.pushNamed(context, AboutUsPage.routeName);
-                      }),
-                    ),
-                  if (isMobileView) const SearchWidget(),
-                  const ProfileWidget(),
-                ],
-              ),
+            HeaderWidget(
+              isMobileView: isMobileView,
+              toHomePage: () {},
+              toBookingsPage: () {
+                Navigator.pushNamed(context, BookingsPage.routeName);
+              },
+              toCarsPage: () {
+                Navigator.pushNamed(context, CarsPage.routeName);
+              },
+              toAboutUsPage: () {
+                Navigator.pushNamed(context, AboutUsPage.routeName);
+              },
             ),
-            if (isMobileView)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    onHoverWidgets('Home', ThemeClass.primaryColor, () {}),
-                    onHoverWidgets('Bookings', Colors.black, () {
-                      Navigator.pushNamed(context, BookingsPage.routeName);
-                    }),
-                    onHoverWidgets('Cars', Colors.black, () {
-                      Navigator.pushNamed(context, CarsPage.routeName);
-                    }),
-                    onHoverWidgets('About Us', Colors.black, () {
-                      Navigator.pushNamed(context, AboutUsPage.routeName);
-                    }),
-                  ],
-                ),
-              ),
             isMobileView
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

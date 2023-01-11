@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config.dart';
 import '../models/user.dart';
@@ -63,6 +64,12 @@ class AuthService {
       var jsonData = jsonDecode(responseData.body);
 
       if (responseData.statusCode == 200 || responseData.statusCode == 201) {
+        final prefs = await SharedPreferences.getInstance();
+
+        await prefs.setString(
+          'access_token',
+          jsonData['access_token'],
+        );
         SharedService.userName = jsonData['user']['name'];
         SharedService.email = jsonData['user']['email'];
         SharedService.userID = jsonData['user']['id'].toString();
@@ -77,6 +84,13 @@ class AuthService {
     } catch (e) {
       return Future.error(e.toString());
     }
+  }
+
+  static Future<String?> getUserToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var accessToken = prefs.getString('access_token');
+
+    return accessToken;
   }
 
   // static Future<void> verifyUser(String otp) async {
@@ -154,11 +168,12 @@ class AuthService {
   // }
 
   static Future<void> logOut(BuildContext context) async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // await prefs.clear();
-    Navigator.pushReplacementNamed(
-      context,
-      SignInPage.routeName,
-    );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear().then((value) {
+      Navigator.pushReplacementNamed(
+        context,
+        SignInPage.routeName,
+      );
+    });
   }
 }

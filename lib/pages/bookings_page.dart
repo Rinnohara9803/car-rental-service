@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
+import '../widgets/header_widget.dart';
 import '../widgets/search_widget.dart';
 import 'home_page.dart';
 
@@ -65,75 +66,19 @@ class _BookingsPageState extends State<BookingsPage>
         ),
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 8,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (!isMobileView) const SearchWidget(),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets('Home', Colors.black, () {
-                        Navigator.pushNamed(context, HomePage.routeName);
-                      }),
-                    ),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets(
-                          'Bookings', ThemeClass.primaryColor, () {}),
-                    ),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets('Cars', Colors.black, () {
-                        Navigator.pushNamed(context, CarsPage.routeName);
-                      }),
-                    ),
-                  if (!isMobileView)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 15,
-                      ),
-                      child: onHoverWidgets('About Us', Colors.black, () {
-                        Navigator.pushNamed(context, AboutUsPage.routeName);
-                      }),
-                    ),
-                  if (isMobileView) const SearchWidget(),
-                  const ProfileWidget(),
-                ],
-              ),
+            HeaderWidget(
+              isMobileView: isMobileView,
+              toHomePage: () {
+                Navigator.pushNamed(context, HomePage.routeName);
+              },
+              toBookingsPage: () {},
+              toCarsPage: () {
+                Navigator.pushNamed(context, CarsPage.routeName);
+              },
+              toAboutUsPage: () {
+                Navigator.pushNamed(context, AboutUsPage.routeName);
+              },
             ),
-            if (isMobileView)
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    onHoverWidgets('Home', Colors.black, () {
-                      Navigator.pushNamed(context, HomePage.routeName);
-                    }),
-                    onHoverWidgets('Bookings', ThemeClass.primaryColor, () {}),
-                    onHoverWidgets('Cars', Colors.black, () {
-                      Navigator.pushNamed(context, CarsPage.routeName);
-                    }),
-                    onHoverWidgets('About Us', Colors.black, () {
-                      Navigator.pushNamed(context, AboutUsPage.routeName);
-                    }),
-                  ],
-                ),
-              ),
             Container(
               height: 800,
               color: Colors.black,

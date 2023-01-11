@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
+import 'package:car_rental_service/services/auth_service.dart';
 import 'package:flutter/foundation.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
-import 'package:car_rental_service/models/car.dart';
+import 'package:car_rental_service/providers/car.dart';
 import 'package:image_picker/image_picker.dart';
 import '../config.dart';
-import '../services/shared_services.dart';
 
 class CarsProvider with ChangeNotifier {
   List<TheCar> _cars = [];
@@ -16,9 +16,16 @@ class CarsProvider with ChangeNotifier {
     return [..._cars];
   }
 
+  List<TheCar> _searchData = [];
+
+  List<TheCar> get searchData {
+    return [..._searchData];
+  }
+
   Future<void> addCar(TheCar car, XFile image) async {
+    var accessToken = await AuthService.getUserToken();
     Map<String, String> headers = {
-      "Authorization": "Bearer ${SharedService.token}",
+      "Authorization": "Bearer $accessToken",
     };
     try {
       var request = http.MultipartRequest(
@@ -66,16 +73,15 @@ class CarsProvider with ChangeNotifier {
     } on SocketException {
       return Future.error('No Internet Connection.');
     } catch (e) {
-      print('error');
-      print(e.toString());
       return Future.error(e.toString());
     }
   }
 
   Future<void> getAllCars() async {
+    var accessToken = await AuthService.getUserToken();
     Map<String, String> headers = {
       "Content-type": "application/json",
-      "Authorization": "Bearer ${SharedService.token}",
+      "Authorization": "Bearer $accessToken",
     };
     try {
       var responseData = await http.get(
@@ -115,10 +121,52 @@ class CarsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> deleteCar(String id) async {
+  Future<void> getCarsBySearch(dynamic value) async {
+    var accessToken = await AuthService.getUserToken();
+    var queryParameters = {
+      'name': value,
+    };
     Map<String, String> headers = {
       "Content-type": "application/json",
-      "Authorization": "Bearer ${SharedService.token}",
+      "Authorization": "Bearer $accessToken",
+    };
+    try {
+      var uri = Uri.http(Config.authority, 'api/search', queryParameters);
+      var responseData = await http.get(uri, headers: headers);
+      var jsonData = jsonDecode(responseData.body);
+      if (responseData.statusCode == 200 || responseData.statusCode == 201) {
+        List<TheCar> loadedCars = [];
+        for (var car in jsonData['cars']) {
+          loadedCars.add(
+            TheCar(
+              id: car['id'],
+              name: car['name'],
+              description: car['description'],
+              numberPlate: car['number_plate'],
+              horsePower: car['horsepower'],
+              mileage: car['mileage'],
+              price: car['price'],
+              image: car['links']['image'],
+            ),
+          );
+          _searchData = loadedCars;
+          notifyListeners();
+        }
+      } else {
+        return Future.error(jsonData['message']);
+      }
+    } on SocketException {
+      return Future.error('No Internet connection');
+    } catch (e) {
+      return Future.error(e.toString());
+    }
+  }
+
+  Future<void> deleteCar(String id) async {
+    var accessToken = await AuthService.getUserToken();
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "Authorization": "Bearer $accessToken",
     };
     try {
       var responseData = await http.delete(

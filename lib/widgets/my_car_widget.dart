@@ -1,11 +1,9 @@
-import 'package:car_rental_service/models/car.dart';
+import 'package:car_rental_service/providers/car.dart';
 import 'package:car_rental_service/pages/update_car_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../config.dart';
-import '../pages/car_details_page.dart';
 import '../providers/cars_provider.dart';
 import '../utilities/snackbars.dart';
 
@@ -41,7 +39,7 @@ class MyCarWidget extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, CarDetailsPage.routeName);
+        // Navigator.pushNamed(context, CarDetailsPage.routeName);
       },
       child: Container(
         alignment: Alignment.center,

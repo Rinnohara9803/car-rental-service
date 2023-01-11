@@ -5,6 +5,7 @@ import 'package:car_rental_service/pages/home_page.dart';
 import 'package:car_rental_service/pages/cars_page.dart';
 import 'package:car_rental_service/pages/add_cars_page.dart';
 import 'package:car_rental_service/pages/manage_cars_page.dart';
+import 'package:car_rental_service/pages/search_page.dart';
 import 'package:car_rental_service/pages/sign_in_page.dart';
 import 'package:car_rental_service/pages/sign_up_page.dart';
 import 'package:car_rental_service/pages/update_car_details_page.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.purple,
         ),
         home: const SignInPage(),
         routes: {
@@ -46,6 +47,7 @@ class MyApp extends StatelessWidget {
           ManageCarsPage.routeName: (context) => const ManageCarsPage(),
           UpdateCarDetailsPage.routeName: (context) =>
               const UpdateCarDetailsPage(),
+          SearchPage.routeName: (context) => const SearchPage(),
         },
       ),
     );

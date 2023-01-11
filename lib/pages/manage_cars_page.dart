@@ -1,7 +1,6 @@
-import 'package:car_rental_service/models/car.dart';
+import 'package:car_rental_service/providers/car.dart';
 import 'package:car_rental_service/pages/add_cars_page.dart';
 import 'package:car_rental_service/providers/cars_provider.dart';
-import 'package:car_rental_service/widgets/on_hover_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -22,25 +21,6 @@ class _ManageCarsPageState extends State<ManageCarsPage> {
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   Future? _getAllCarsData;
-
-  Widget onHoverWidgets(String value, Color textColor, Function onTap) {
-    return OnHover(
-      builder: (onHovered) {
-        return InkWell(
-          onTap: () {
-            onTap();
-          },
-          child: Text(
-            value,
-            style: GoogleFonts.raleway().copyWith(
-              fontWeight: FontWeight.normal,
-              color: textColor,
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   void initState() {
@@ -109,7 +89,7 @@ class _ManageCarsPageState extends State<ManageCarsPage> {
             ],
           ),
           const SizedBox(
-            height: 20,
+            height: 10,
           ),
           Expanded(
             child: FutureBuilder(

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 
-import '../pages/add_cars_page.dart';
 import '../utilities/themes.dart';
 
 class ProfileWidget extends StatelessWidget {
@@ -44,7 +43,6 @@ class ProfileWidget extends StatelessWidget {
             Icons.logout,
           ),
           onPressed: () {
-            SharedService.token = '';
             Navigator.pushNamedAndRemoveUntil(
               context,
               SignInPage.routeName,

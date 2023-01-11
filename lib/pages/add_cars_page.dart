@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-import '../models/car.dart';
+import '../providers/car.dart';
 import '../utilities/snackbars.dart';
 import '../utilities/themes.dart';
 import '../widgets/circular_progress_indicator.dart';
