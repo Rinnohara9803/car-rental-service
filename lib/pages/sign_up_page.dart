@@ -8,7 +8,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../models/user.dart';
 import '../services/auth_service.dart';
-import '../utilities/snackbars.dart';
+import '../utilities/toasts.dart';
 import '../widgets/circular_progress_indicator.dart';
 import '../widgets/general_textformfield.dart';
 
@@ -49,13 +49,14 @@ class _SignUpPageState extends State<SignUpPage> {
 
     try {
       await AuthService.signUpUser(newUser).then((value) {
-        SnackBars.showNormalSnackbar(context, 'Account created Successfully!!');
+        FlutterToasts.showNormalToast(
+            context, 'Account created Successfully!!');
         Navigator.pushNamed(context, SignInPage.routeName);
       });
     } on SocketException {
-      SnackBars.showNoInternetConnectionSnackBar(context);
+      FlutterToasts.showNoInternetConnectionSnackBar(context);
     } catch (e) {
-      SnackBars.showErrorSnackBar(context, e.toString());
+      FlutterToasts.showErrorToast(context, e.toString());
     }
     setState(() {
       _isLoading = false;
@@ -264,7 +265,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               child: _isLoading
                                   ? const ProgressIndicator1()
                                   : Text(
-                                      'Sign Up',  
+                                      'Sign Up',
                                       style: GoogleFonts.raleway().copyWith(
                                         fontSize: 15,
                                         letterSpacing: 1,

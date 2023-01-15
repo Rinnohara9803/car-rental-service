@@ -11,15 +11,15 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../widgets/header_widget.dart';
 
-class AboutUsPage extends StatefulWidget {
-  static String routeName = '/aboutUsPage';
-  const AboutUsPage({Key? key}) : super(key: key);
+class MyPaymentsPage extends StatefulWidget {
+  static String routeName = '/myPaymentsPage';
+  const MyPaymentsPage({Key? key}) : super(key: key);
 
   @override
-  State<AboutUsPage> createState() => _AboutUsPageState();
+  State<MyPaymentsPage> createState() => _MyPaymentsPageState();
 }
 
-class _AboutUsPageState extends State<AboutUsPage>
+class _MyPaymentsPageState extends State<MyPaymentsPage>
     with TickerProviderStateMixin {
   Widget onHoverWidgets(String value, Color textColor, Function onTap) {
     return OnHover(

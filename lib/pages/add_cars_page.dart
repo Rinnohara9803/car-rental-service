@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../providers/car.dart';
-import '../utilities/snackbars.dart';
+import '../utilities/toasts.dart';
 import '../utilities/themes.dart';
 import '../widgets/circular_progress_indicator.dart';
 import '../widgets/general_textformfield.dart';
@@ -54,7 +54,7 @@ class _AddCarsPageState extends State<AddCarsPage> {
 
   Future<void> _saveForm() async {
     if (image == null || _selectedImage == null) {
-      SnackBars.showErrorSnackBar(context, 'Fill in all the required fields.');
+      FlutterToasts.showErrorToast(context, 'Fill in all the required fields.');
       return;
     } else if (!_formKey.currentState!.validate()) {
       return;
@@ -87,19 +87,19 @@ class _AddCarsPageState extends State<AddCarsPage> {
       )
           .then((value) {
         clearForm();
-        SnackBars.showNormalSnackbar(context, 'Car added successfully.');
+        FlutterToasts.showNormalToast(context, 'Car added successfully.');
       }).catchError((e) {
         if (e.toString() == 'XMLHttpRequest error.') {
-          SnackBars.showErrorSnackBar(
+          FlutterToasts.showErrorToast(
               context, 'Image size should be less than 2mb.');
           return;
         }
-        SnackBars.showErrorSnackBar(context, e.toString());
+        FlutterToasts.showErrorToast(context, e.toString());
       });
     } on SocketException {
-      SnackBars.showNoInternetConnectionSnackBar(context);
+      FlutterToasts.showNoInternetConnectionSnackBar(context);
     } catch (e) {
-      SnackBars.showErrorSnackBar(context, e.toString());
+      FlutterToasts.showErrorToast(context, e.toString());
     }
     setState(() {
       _isLoading = false;

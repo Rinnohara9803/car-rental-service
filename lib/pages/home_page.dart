@@ -13,8 +13,7 @@ import 'package:shimmer/shimmer.dart';
 import '../providers/car.dart';
 import '../providers/cars_provider.dart';
 import '../widgets/car_widget.dart';
-import '../widgets/profile_widget.dart';
-import '../widgets/search_widget.dart';
+
 import '../widgets/sliding_widgets.dart';
 
 class HomePage extends StatefulWidget {
@@ -98,6 +97,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               toAboutUsPage: () {
                 Navigator.pushNamed(context, AboutUsPage.routeName);
               },
+              homePageColor: ThemeClass.primaryColor,
+              bookingsPageColor: Colors.black,
+              carsPageColor: Colors.black,
+              aboutUsPageColor: Colors.black,
             ),
             isMobileView
                 ? Column(

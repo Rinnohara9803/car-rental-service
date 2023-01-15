@@ -9,7 +9,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../providers/car.dart';
 import '../utilities/constants.dart';
-import '../utilities/snackbars.dart';
+import '../utilities/toasts.dart';
 import '../widgets/car_widget.dart';
 
 class SearchPage extends StatefulWidget {
@@ -35,12 +35,12 @@ class _SearchPageState extends State<SearchPage> {
           .getCarsBySearch(searchValue)
           .then((value) {})
           .catchError((e) {
-        SnackBars.showErrorSnackBar(context, e.toString());
+        FlutterToasts.showErrorToast(context, e.toString());
       });
     } on SocketException {
-      SnackBars.showNoInternetConnectionSnackBar(context);
+      FlutterToasts.showNoInternetConnectionSnackBar(context);
     } catch (e) {
-      SnackBars.showErrorSnackBar(
+      FlutterToasts.showErrorToast(
         context,
         e.toString(),
       );

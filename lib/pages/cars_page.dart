@@ -3,7 +3,6 @@ import 'package:car_rental_service/pages/bookings_page.dart';
 import 'package:car_rental_service/pages/home_page.dart';
 import 'package:car_rental_service/utilities/themes.dart';
 import 'package:car_rental_service/widgets/on_hover_widget.dart';
-import 'package:car_rental_service/widgets/profile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +13,6 @@ import '../providers/car.dart';
 import '../providers/cars_provider.dart';
 import '../widgets/car_widget.dart';
 import '../widgets/header_widget.dart';
-import '../widgets/search_widget.dart';
 
 class CarsPage extends StatefulWidget {
   static String routeName = '/carsPage';
@@ -93,6 +91,10 @@ class _CarsPageState extends State<CarsPage> with TickerProviderStateMixin {
               toAboutUsPage: () {
                 Navigator.pushNamed(context, AboutUsPage.routeName);
               },
+              homePageColor: Colors.black,
+              bookingsPageColor: Colors.black,
+              carsPageColor: ThemeClass.primaryColor,
+              aboutUsPageColor: Colors.black,
             ),
             const SizedBox(
               height: 20,

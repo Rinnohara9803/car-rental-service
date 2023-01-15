@@ -70,6 +70,14 @@ class AuthService {
           'access_token',
           jsonData['access_token'],
         );
+        await prefs.setString(
+          'user_name',
+          jsonData['user']['name'],
+        );
+        await prefs.setString(
+          'user_id',
+          jsonData['user']['id'].toString(),
+        );
         SharedService.userName = jsonData['user']['name'];
         SharedService.email = jsonData['user']['email'];
         SharedService.userID = jsonData['user']['id'].toString();
@@ -93,87 +101,48 @@ class AuthService {
     return accessToken;
   }
 
-  // static Future<void> verifyUser(String otp) async {
-  //   Map<String, String> headers = {
-  //     "Content-type": "application/json",
-  //     "Authorization": "Bearer ${SharedService.token}",
-  //   };
-  //   try {
-  //     var responseData = await http.post(
-  //       Uri.http(Config.authority, 'api/users/verify'),
-  //       headers: headers,
-  //       body: jsonEncode(
-  //         {
-  //           "otp": otp,
-  //         },
-  //       ),
-  //     );
+  static Future<String?> getUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userName = prefs.getString('user_name');
 
-  //     if (responseData.statusCode == 200 || responseData.statusCode == 201) {
-  //     } else if (responseData.statusCode == 400) {
-  //       return Future.error('Invalid or expired OTP');
-  //     }
-  //   } on SocketException {
-  //     return Future.error('No Internet Connection');
-  //   } catch (e) {
-  //     return Future.error(e.toString());
-  //   }
-  // }
+    return userName;
+  }
 
-  // static Future<void> resendOtp() async {
-  //   Map<String, String> headers = {
-  //     "Content-type": "application/json",
-  //     "Authorization": "Bearer ${SharedService.token}",
-  //   };
-  //   try {
-  //     var responseData = await http.post(
-  //       Uri.http(Config.authority, 'api/users/resend-otp'),
-  //       headers: headers,
-  //     );
+  static Future<String?> getUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userId = prefs.getString('user_id');
 
-  //     if (responseData.statusCode == 200 || responseData.statusCode == 201) {
-  //     } else if (responseData.statusCode == 400) {
-  //       return Future.error('Something went wrong.');
-  //     }
-  //   } on SocketException {
-  //     return Future.error('No Internet Connection');
-  //   } catch (e) {
-  //     return Future.error(e.toString());
-  //   }
-  // }
-
-  // static Future<void> fetchMyProfile(String userId) async {
-  //   Map<String, String> headers = {
-  //     "Content-type": "application/json",
-  //     "Authorization": "Bearer ${SharedService.token}",
-  //   };
-  //   try {
-  //     var responseData = await http.get(
-  //       Uri.http(Config.authority, 'api/users/$userId'),
-  //       headers: headers,
-  //     );
-  //     if (responseData.statusCode == 200 || responseData.statusCode == 201) {
-  //       var jsonData = jsonDecode(responseData.body);
-  //       SharedService.userID = jsonData['_id'];
-  //       SharedService.userName = jsonData['name'];
-  //       SharedService.email = jsonData['email'];
-  //     } else {
-  //       return Future.error('No user found.');
-  //     }
-  //   } on SocketException {
-  //     return Future.error('No Internet Connection');
-  //   } catch (e) {
-  //     return Future.error(e.toString());
-  //   }
-  // }
+    return userId;
+  }
 
   static Future<void> logOut(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear().then((value) {
-      Navigator.pushReplacementNamed(
-        context,
-        SignInPage.routeName,
+    var accessToken = await AuthService.getUserToken();
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+    try {
+      var responseData = await http.post(
+        Uri.http(Config.authority, 'api/auth/logout'),
+        headers: headers,
       );
-    });
+      var jsonData = jsonDecode(responseData.body);
+
+      if (responseData.statusCode == 200 || responseData.statusCode == 201) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.clear().then((value) {
+          Navigator.pushNamedAndRemoveUntil(
+              context, SignInPage.routeName, (route) => false);
+        });
+      } else {
+        return Future.error(
+          jsonData['message'],
+        );
+      }
+    } on SocketException {
+      return Future.error('No Internet Connection');
+    } catch (e) {
+      return Future.error(e.toString());
+    }
   }
 }

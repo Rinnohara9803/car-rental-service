@@ -4,16 +4,21 @@ import 'package:car_rental_service/pages/car_details_page.dart';
 import 'package:car_rental_service/pages/home_page.dart';
 import 'package:car_rental_service/pages/cars_page.dart';
 import 'package:car_rental_service/pages/add_cars_page.dart';
+import 'package:car_rental_service/pages/make_payments_page.dart';
 import 'package:car_rental_service/pages/manage_cars_page.dart';
+import 'package:car_rental_service/pages/my_payments_page.dart';
 import 'package:car_rental_service/pages/search_page.dart';
 import 'package:car_rental_service/pages/sign_in_page.dart';
 import 'package:car_rental_service/pages/sign_up_page.dart';
 import 'package:car_rental_service/pages/update_car_details_page.dart';
+import 'package:car_rental_service/providers/bookings_provider.dart';
 import 'package:car_rental_service/providers/cars_provider.dart';
+import 'package:car_rental_service/providers/reviews_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:khalti_flutter/khalti_flutter.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
@@ -27,27 +32,47 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<CarsProvider>(
           create: (context) => CarsProvider(),
         ),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          primarySwatch: Colors.purple,
+        ChangeNotifierProvider<BookingsProvider>(
+          create: (context) => BookingsProvider(),
         ),
-        home: const SignInPage(),
-        routes: {
-          SignInPage.routeName: (context) => const SignInPage(),
-          SignUpPage.routeName: (context) => const SignUpPage(),
-          HomePage.routeName: (context) => const HomePage(),
-          BookingsPage.routeName: (context) => const BookingsPage(),
-          CarsPage.routeName: (context) => const CarsPage(),
-          AboutUsPage.routeName: (context) => const AboutUsPage(),
-          CarDetailsPage.routeName: (context) => const CarDetailsPage(),
-          AddCarsPage.routeName: (context) => const AddCarsPage(),
-          ManageCarsPage.routeName: (context) => const ManageCarsPage(),
-          UpdateCarDetailsPage.routeName: (context) =>
-              const UpdateCarDetailsPage(),
-          SearchPage.routeName: (context) => const SearchPage(),
+        ChangeNotifierProvider<ReviewsProvider>(
+          create: (context) => ReviewsProvider(),
+        ),
+      ],
+      child: KhaltiScope(
+        publicKey: "test_public_key_a0d8cf0b60c34546a46140c5daf2c989",
+        builder: (context, navigatorKey) {
+          return MaterialApp(
+            navigatorKey: navigatorKey,
+            supportedLocales: const [
+              Locale('en', 'US'),
+              Locale('ne', 'NP'),
+            ],
+            localizationsDelegates: const [
+              KhaltiLocalizations.delegate,
+            ],
+            debugShowCheckedModeBanner: false,
+            title: 'Flutter Demo',
+            theme: ThemeData(
+              primarySwatch: Colors.purple,
+            ),
+            home: const SignInPage(),
+            routes: {
+              SignInPage.routeName: (context) => const SignInPage(),
+              SignUpPage.routeName: (context) => const SignUpPage(),
+              HomePage.routeName: (context) => const HomePage(),
+              BookingsPage.routeName: (context) => const BookingsPage(),
+              CarsPage.routeName: (context) => const CarsPage(),
+              AboutUsPage.routeName: (context) => const AboutUsPage(),
+              CarDetailsPage.routeName: (context) => const CarDetailsPage(),
+              AddCarsPage.routeName: (context) => const AddCarsPage(),
+              ManageCarsPage.routeName: (context) => const ManageCarsPage(),
+              UpdateCarDetailsPage.routeName: (context) =>
+                  const UpdateCarDetailsPage(),
+              SearchPage.routeName: (context) => const SearchPage(),
+              MyPaymentsPage.routeName: (context) => const MyPaymentsPage(),
+            },
+          );
         },
       ),
     );

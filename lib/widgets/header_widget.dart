@@ -3,7 +3,6 @@ import 'package:car_rental_service/widgets/search_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../utilities/themes.dart';
 import 'on_hover_widget.dart';
 
 class HeaderWidget extends StatefulWidget {
@@ -12,6 +11,10 @@ class HeaderWidget extends StatefulWidget {
   final Function toBookingsPage;
   final Function toCarsPage;
   final Function toAboutUsPage;
+  final Color homePageColor;
+  final Color bookingsPageColor;
+  final Color carsPageColor;
+  final Color aboutUsPageColor;
   const HeaderWidget({
     super.key,
     required this.isMobileView,
@@ -19,6 +22,10 @@ class HeaderWidget extends StatefulWidget {
     required this.toBookingsPage,
     required this.toCarsPage,
     required this.toAboutUsPage,
+    required this.homePageColor,
+    required this.bookingsPageColor,
+    required this.carsPageColor,
+    required this.aboutUsPageColor,
   });
 
   @override
@@ -63,7 +70,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                   padding: const EdgeInsets.only(
                     right: 15,
                   ),
-                  child: onHoverWidgets('Home', ThemeClass.primaryColor, () {
+                  child: onHoverWidgets('Home', widget.homePageColor, () {
                     widget.toHomePage();
                   }),
                 ),
@@ -72,7 +79,8 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                   padding: const EdgeInsets.only(
                     right: 15,
                   ),
-                  child: onHoverWidgets('Bookings', Colors.black, () {
+                  child:
+                      onHoverWidgets('Bookings', widget.bookingsPageColor, () {
                     widget.toBookingsPage();
                   }),
                 ),
@@ -81,7 +89,7 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                   padding: const EdgeInsets.only(
                     right: 15,
                   ),
-                  child: onHoverWidgets('Cars', Colors.black, () {
+                  child: onHoverWidgets('Cars', widget.carsPageColor, () {
                     widget.toCarsPage();
                   }),
                 ),
@@ -90,7 +98,8 @@ class _HeaderWidgetState extends State<HeaderWidget> {
                   padding: const EdgeInsets.only(
                     right: 15,
                   ),
-                  child: onHoverWidgets('About Us', Colors.black, () {
+                  child:
+                      onHoverWidgets('About Us', widget.aboutUsPageColor, () {
                     widget.toAboutUsPage();
                   }),
                 ),
@@ -105,16 +114,16 @@ class _HeaderWidgetState extends State<HeaderWidget> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                onHoverWidgets('Home', ThemeClass.primaryColor, () {
+                onHoverWidgets('Home', widget.homePageColor, () {
                   widget.toHomePage();
                 }),
-                onHoverWidgets('Bookings', Colors.black, () {
+                onHoverWidgets('Bookings', widget.bookingsPageColor, () {
                   widget.toBookingsPage();
                 }),
-                onHoverWidgets('Cars', Colors.black, () {
+                onHoverWidgets('Cars', widget.carsPageColor, () {
                   widget.toCarsPage();
                 }),
-                onHoverWidgets('About Us', Colors.black, () {
+                onHoverWidgets('About Us', widget.aboutUsPageColor, () {
                   widget.toAboutUsPage();
                 }),
               ],

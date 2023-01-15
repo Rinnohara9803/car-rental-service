@@ -33,10 +33,12 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_rating_bar: ^4.0.1
+  fluttertoast: ^8.1.2
   focused_menu: ^1.0.5
   google_fonts: ^3.0.1
   image_picker: ^0.8.6
-  intl: ^0.18.0
+  intl: ^0.17.0
+  khalti_flutter: ^2.1.0
   path: ^1.8.2
   path_provider: ^2.0.11
   provider: ^6.0.5

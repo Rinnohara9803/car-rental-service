@@ -42,7 +42,8 @@ class CarWidget extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => ChangeNotifierProvider<TheCar>.value(
               value: car,
-              child: const CarDetailsPage(),
+              child: const CarDetailsPage(
+              ),
             ),
           ),
         );

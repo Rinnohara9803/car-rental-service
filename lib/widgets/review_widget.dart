@@ -11,7 +11,15 @@ class ReviewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (reviews.isEmpty) {
+      return Text(
+        'No reviews till date.',
+        style: GoogleFonts.raleway().copyWith(),
+      );
+    }
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: reviews.map((review) {
         return Padding(
           padding: const EdgeInsets.only(
@@ -37,7 +45,7 @@ class ReviewWidget extends StatelessWidget {
                         width: 5,
                       ),
                       Text(
-                        review.reviewer,
+                        review.user.toString(),
                         style: GoogleFonts.raleway().copyWith(),
                       ),
                     ],
@@ -46,7 +54,7 @@ class ReviewWidget extends StatelessWidget {
                     height: 10,
                   ),
                   RatingBarIndicator(
-                    rating: review.rating,
+                    rating: review.rating.toDouble(),
                     itemBuilder: (context, index) => const Icon(
                       Icons.star,
                       color: Colors.amber,

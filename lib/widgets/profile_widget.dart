@@ -1,5 +1,6 @@
 import 'package:car_rental_service/pages/manage_cars_page.dart';
-import 'package:car_rental_service/pages/sign_in_page.dart';
+import 'package:car_rental_service/pages/my_payments_page.dart';
+import 'package:car_rental_service/services/auth_service.dart';
 import 'package:car_rental_service/services/shared_services.dart';
 import 'package:flutter/material.dart';
 import 'package:focused_menu/focused_menu.dart';
@@ -36,18 +37,24 @@ class ProfileWidget extends StatelessWidget {
               );
             },
           ),
+        if (SharedService.email != 'admin@email.com')
+          FocusedMenuItem(
+            title: const Text('My Payments'),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                MyPaymentsPage.routeName,
+              );
+            },
+          ),
         FocusedMenuItem(
           title: const Text('Log Out'),
           backgroundColor: Colors.redAccent,
           trailingIcon: const Icon(
             Icons.logout,
           ),
-          onPressed: () {
-            Navigator.pushNamedAndRemoveUntil(
-              context,
-              SignInPage.routeName,
-              (route) => false,
-            );
+          onPressed: () async {
+            await AuthService.logOut(context);
           },
         ),
       ],

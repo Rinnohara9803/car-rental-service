@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import '../providers/car.dart';
-import '../utilities/snackbars.dart';
+import '../utilities/toasts.dart';
 import '../utilities/themes.dart';
 import '../widgets/circular_progress_indicator.dart';
 import '../widgets/general_textformfield.dart';
@@ -85,7 +85,7 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
         setState(() {
           _isLoading = false;
         });
-        SnackBars.showErrorSnackBar(context, e.toString());
+        FlutterToasts.showErrorToast(context, e.toString());
       });
     } else {
       await car!
@@ -100,11 +100,11 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
         Navigator.of(context).pop();
       }).catchError((e) {
         if (e.toString() == 'XMLHttpRequest error.') {
-          SnackBars.showErrorSnackBar(
+          FlutterToasts.showErrorToast(
               context, 'Image size should be less than 2mb.');
           return;
         }
-        SnackBars.showErrorSnackBar(context, e.toString());
+        FlutterToasts.showErrorToast(context, e.toString());
         setState(() {
           _isLoading = false;
         });

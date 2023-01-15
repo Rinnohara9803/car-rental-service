@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-import '../utilities/snackbars.dart';
+import '../utilities/toasts.dart';
 import '../widgets/circular_progress_indicator.dart';
 import '../widgets/general_textformfield.dart';
 
@@ -42,9 +42,9 @@ class _SignInPageState extends State<SignInPage> {
         Navigator.pushNamed(context, HomePage.routeName);
       });
     } on SocketException {
-      SnackBars.showNoInternetConnectionSnackBar(context);
+      FlutterToasts.showNoInternetConnectionSnackBar(context);
     } catch (e) {
-      SnackBars.showErrorSnackBar(
+      FlutterToasts.showErrorToast(
         context,
         e.toString(),
       );
