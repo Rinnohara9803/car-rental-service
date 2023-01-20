@@ -18,6 +18,7 @@ class TheCar with ChangeNotifier {
   int horsePower;
   int mileage;
   int price;
+  dynamic rating;
   String image;
   TheCar({
     required this.id,
@@ -26,6 +27,7 @@ class TheCar with ChangeNotifier {
     required this.numberPlate,
     required this.horsePower,
     required this.mileage,
+    required this.rating,
     required this.price,
     required this.image,
   });

@@ -50,6 +50,7 @@ class _CarsPageState extends State<CarsPage> with TickerProviderStateMixin {
     _getAllCarsData =
         Provider.of<CarsProvider>(context, listen: false).getAllCars();
     super.initState();
+    
   }
 
   @override
@@ -198,6 +199,8 @@ class _CarsPageState extends State<CarsPage> with TickerProviderStateMixin {
                 } else {
                   return Consumer<CarsProvider>(
                     builder: (context, carsData, child) {
+                      
+                      
                       return RefreshIndicator(
                         key: _refreshIndicatorKey,
                         onRefresh: () async {

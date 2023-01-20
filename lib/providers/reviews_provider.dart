@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:car_rental_service/models/review.dart';
-import 'package:car_rental_service/services/shared_services.dart';
+import 'package:car_rental_service/providers/review.dart';
 import 'package:flutter/cupertino.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
@@ -64,6 +63,7 @@ class ReviewsProvider with ChangeNotifier {
     } on SocketException {
       return Future.error('No Internet Connection.');
     } catch (e) {
+      print(e.toString());
       return Future.error(e.toString());
     }
   }
@@ -134,7 +134,6 @@ class ReviewsProvider with ChangeNotifier {
       );
 
       if (responseData.statusCode == 204) {
-        print('good deletion');
         _myReview = Review(id: '', rating: 2, review: '', userId: '', user: '');
         notifyListeners();
         _haveIReviewed = false;
@@ -145,6 +144,44 @@ class ReviewsProvider with ChangeNotifier {
       }
     } on SocketException {
       return Future.error('No Internet connection');
+    } catch (e) {
+      return Future.error(e.toString());
+    }
+  }
+
+  Future<void> updateReview(
+      dynamic reviewId, Review newReview, dynamic carId) async {
+    var accessToken = await AuthService.getUserToken();
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+    try {
+      var responseData = await http.put(
+        Uri.http(Config.authority, 'api/cars/$carId/reviews/$reviewId'),
+        headers: headers,
+        body: jsonEncode(
+          {
+            "star": newReview.rating,
+            "review": newReview.review,
+          },
+        ),
+      );
+      var jsonData = jsonDecode(responseData.body);
+      if (responseData.statusCode == 200 || responseData.statusCode == 201) {
+        Review theReview = Review(
+          id: jsonData['review']['id'],
+          rating: jsonData['review']['star'],
+          review: jsonData['review']['body'],
+          userId: jsonData['review']['customer_id'],
+          user: jsonData['review']['customer'],
+        );
+
+        _myReview = theReview;
+        notifyListeners();
+      }
+    } on SocketException {
+      return Future.error('No Internet Connection.');
     } catch (e) {
       return Future.error(e.toString());
     }

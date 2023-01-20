@@ -1,62 +1,55 @@
 import 'dart:io';
 
-import 'package:car_rental_service/pages/sign_in_page.dart';
+import 'package:car_rental_service/pages/home_page.dart';
+import 'package:car_rental_service/pages/sign_up_page.dart';
+import 'package:car_rental_service/services/auth_service.dart';
+import 'package:car_rental_service/services/shared_services.dart';
 import 'package:car_rental_service/utilities/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-import '../models/user.dart';
-import '../services/auth_service.dart';
 import '../utilities/toasts.dart';
 import '../widgets/circular_progress_indicator.dart';
 import '../widgets/general_textformfield.dart';
 
-class SignUpPage extends StatefulWidget {
-  static String routeName = '/signUpPage';
-  const SignUpPage({Key? key}) : super(key: key);
+class ProfilePage extends StatefulWidget {
+  static String routeName = '/profilePage';
+  const ProfilePage({Key? key}) : super(key: key);
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _userNameController = TextEditingController();
+  TextEditingController? _nameController;
+  TextEditingController? _emailController;
 
   bool _isLoading = false;
-  User newUser = User(
-    userName: '',
-    email: '',
-    password: '',
-  );
 
   Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    _formKey.currentState!.save();
     setState(() {
       _isLoading = true;
     });
-    _formKey.currentState!.save();
-    newUser = User(
-      userName: _userNameController.text,
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
-
     try {
-      await AuthService.signUpUser(newUser).then((value) {
-        FlutterToasts.showNormalToast(
-            context, 'Account created Successfully!!');
-        Navigator.pushNamed(context, SignInPage.routeName);
+      await AuthService.updateUserDetails(
+        _emailController!.text,
+        _nameController!.text,
+      ).then((value) {
+        Navigator.pushNamed(context, HomePage.routeName);
       });
     } on SocketException {
       FlutterToasts.showNoInternetConnectionSnackBar(context);
     } catch (e) {
-      FlutterToasts.showErrorToast(context, e.toString());
+      FlutterToasts.showErrorToast(
+        context,
+        'Something went wrong.',
+      );
     }
     setState(() {
       _isLoading = false;
@@ -64,42 +57,64 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    _nameController = TextEditingController(text: SharedService.userName);
+    _emailController = TextEditingController(text: SharedService.email);
+
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ResponsiveBuilder(
-        builder: (context, si) {
-          if (si.deviceScreenType == DeviceScreenType.desktop) {
-            return Row(
-              children: [
-                showWidget(),
-                signInForm(),
-              ],
-            );
-          } else if (si.deviceScreenType == DeviceScreenType.tablet) {
-            return Row(
-              children: [
-                showWidget(),
-                signInForm(),
-              ],
-            );
-          } else {
-            return signInForm();
-          }
-        },
+      body: SizedBox(
+        height: double.infinity,
+        width: double.infinity,
+        child: ResponsiveBuilder(
+          builder: (context, si) {
+            if (si.deviceScreenType == DeviceScreenType.desktop) {
+              return Row(
+                children: [
+                  showWidget(),
+                  signInForm(),
+                ],
+              );
+            } else if (si.deviceScreenType == DeviceScreenType.tablet) {
+              return Row(
+                children: [
+                  showWidget(),
+                  signInForm(),
+                ],
+              );
+            } else {
+              return signInForm1();
+            }
+          },
+        ),
       ),
     );
   }
 
-  Flexible signInForm() {
+  Widget signInForm() {
     return Flexible(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 15,
-          horizontal: 15,
-        ),
+      child: signInWidget(),
+    );
+  }
+
+  Widget signInForm1() {
+    return signInWidget();
+  }
+
+  Padding signInWidget() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 15,
+        horizontal: 15,
+      ),
+      child: Form(
+        key: _formKey,
         child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
+          child: Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -110,7 +125,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Row(
                   children: [
                     Text(
-                      'Let\'s',
+                      'Update',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.raleway().copyWith(
                         fontSize: 35,
@@ -119,7 +134,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     Text(
-                      ' Register',
+                      ' Profile',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.raleway().copyWith(
                         fontSize: 35,
@@ -134,7 +149,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   height: 5,
                 ),
                 Text(
-                  'Hey, Enter your details to create an account.',
+                  'Hey, Enter your details to update your profile.',
                   style: GoogleFonts.raleway().copyWith(
                     fontSize: 12,
                     fontWeight: FontWeight.normal,
@@ -146,17 +161,16 @@ class _SignUpPageState extends State<SignUpPage> {
                 GeneralTextFormField(
                   hasPrefixIcon: true,
                   hasSuffixIcon: false,
-                  controller: _userNameController,
-                  label: 'Full Name',
+                  controller: _nameController!,
+                  label: 'Username',
                   validator: (value) {
-                    if (value!.trim().isEmpty) {
+                    if (value!.isEmpty) {
                       return 'Please enter your username.';
-                    } else if (value.length <= 6) {
-                      return 'Username should be at least 6 characters.';
                     }
+
                     return null;
                   },
-                  textInputType: TextInputType.name,
+                  textInputType: TextInputType.emailAddress,
                   iconData: Icons.person,
                   autoFocus: false,
                 ),
@@ -166,83 +180,56 @@ class _SignUpPageState extends State<SignUpPage> {
                 GeneralTextFormField(
                   hasPrefixIcon: true,
                   hasSuffixIcon: false,
-                  controller: _emailController,
+                  controller: _emailController!,
                   label: 'Email',
                   validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter your email';
+                    if (value!.trim().isEmpty) {
+                      return 'Please enter your email.';
                     }
                     if (!value.contains('@') || !value.endsWith('.com')) {
                       return 'Invalid email!';
                     }
                     return null;
                   },
-                  textInputType: TextInputType.emailAddress,
-                  iconData: Icons.mail_outline,
-                  autoFocus: false,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                GeneralTextFormField(
-                  hasPrefixIcon: true,
-                  hasSuffixIcon: true,
-                  controller: _passwordController,
-                  label: 'Password',
-                  validator: (value) {
-                    if (value!.trim().isEmpty) {
-                      return 'Please enter your password.';
-                    } else if (value.trim().length < 6) {
-                      return 'Please enter at least 6 characters.';
-                    }
-                    return null;
-                  },
                   textInputType: TextInputType.name,
-                  iconData: Icons.lock,
+                  iconData: Icons.email,
                   autoFocus: false,
                 ),
                 const SizedBox(
                   height: 30,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: Material(
-                        elevation: 10,
+                Material(
+                  elevation: 10,
+                  borderRadius: BorderRadius.circular(
+                    10,
+                  ),
+                  child: InkWell(
+                    onTap: () async {
+                      _saveForm();
+                    },
+                    child: Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: ThemeClass.primaryColor,
                         borderRadius: BorderRadius.circular(
                           10,
                         ),
-                        child: InkWell(
-                          onTap: () async {
-                            await _saveForm();
-                          },
-                          child: Container(
-                            height: 50,
-                            decoration: BoxDecoration(
-                              color: ThemeClass.primaryColor,
-                              borderRadius: BorderRadius.circular(
-                                10,
+                      ),
+                      child: Center(
+                        child: _isLoading
+                            ? const ProgressIndicator1()
+                            : Text(
+                                'Update Profile',
+                                style: GoogleFonts.raleway().copyWith(
+                                  fontSize: 15,
+                                  letterSpacing: 1,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            child: Center(
-                              child: _isLoading
-                                  ? const ProgressIndicator1()
-                                  : Text(
-                                      'Sign Up',
-                                      style: GoogleFonts.raleway().copyWith(
-                                        fontSize: 15,
-                                        letterSpacing: 1,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
                 const SizedBox(
                   height: 10,
@@ -250,7 +237,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 Row(
                   children: [
                     Text(
-                      'Already have an account ? ',
+                      'Don\'t have an account ? ',
                       style: GoogleFonts.raleway().copyWith(
                         fontSize: 15,
                         fontWeight: FontWeight.normal,
@@ -258,10 +245,10 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                     InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, SignInPage.routeName);
+                        Navigator.pushNamed(context, SignUpPage.routeName);
                       },
                       child: Text(
-                        'Sign In',
+                        'Sign Up',
                         style: GoogleFonts.raleway().copyWith(
                           fontSize: 15,
                           fontWeight: FontWeight.normal,

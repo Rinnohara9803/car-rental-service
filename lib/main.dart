@@ -1,12 +1,11 @@
 import 'package:car_rental_service/pages/about_us_page.dart';
 import 'package:car_rental_service/pages/bookings_page.dart';
-import 'package:car_rental_service/pages/car_details_page.dart';
 import 'package:car_rental_service/pages/home_page.dart';
 import 'package:car_rental_service/pages/cars_page.dart';
 import 'package:car_rental_service/pages/add_cars_page.dart';
-import 'package:car_rental_service/pages/make_payments_page.dart';
 import 'package:car_rental_service/pages/manage_cars_page.dart';
 import 'package:car_rental_service/pages/my_payments_page.dart';
+import 'package:car_rental_service/pages/profile_page.dart';
 import 'package:car_rental_service/pages/search_page.dart';
 import 'package:car_rental_service/pages/sign_in_page.dart';
 import 'package:car_rental_service/pages/sign_up_page.dart';
@@ -14,11 +13,26 @@ import 'package:car_rental_service/pages/update_car_details_page.dart';
 import 'package:car_rental_service/providers/bookings_provider.dart';
 import 'package:car_rental_service/providers/cars_provider.dart';
 import 'package:car_rental_service/providers/reviews_provider.dart';
+import 'package:car_rental_service/services/auth_service.dart';
+import 'package:car_rental_service/services/shared_services.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
 
 void main() async {
+  var role = await AuthService.getUserRole();
+  var email = await AuthService.getUserEmail();
+  var userName = await AuthService.getUserName();
+  var userId = await AuthService.getUserId();
+  if (role == null || email == null || userName == null || userId == null) {
+    runApp(const MyApp());
+    return;
+  }
+
+  SharedService.role = role;
+  SharedService.email = email;
+  SharedService.userName = userName;
+  SharedService.userID = userId;
   runApp(const MyApp());
 }
 
@@ -52,7 +66,7 @@ class MyApp extends StatelessWidget {
               KhaltiLocalizations.delegate,
             ],
             debugShowCheckedModeBanner: false,
-            title: 'Flutter Demo',
+            title: 'Car Rental Service',
             theme: ThemeData(
               primarySwatch: Colors.purple,
             ),
@@ -64,13 +78,13 @@ class MyApp extends StatelessWidget {
               BookingsPage.routeName: (context) => const BookingsPage(),
               CarsPage.routeName: (context) => const CarsPage(),
               AboutUsPage.routeName: (context) => const AboutUsPage(),
-              CarDetailsPage.routeName: (context) => const CarDetailsPage(),
               AddCarsPage.routeName: (context) => const AddCarsPage(),
               ManageCarsPage.routeName: (context) => const ManageCarsPage(),
               UpdateCarDetailsPage.routeName: (context) =>
                   const UpdateCarDetailsPage(),
               SearchPage.routeName: (context) => const SearchPage(),
               MyPaymentsPage.routeName: (context) => const MyPaymentsPage(),
+              ProfilePage.routeName: (context) => const ProfilePage(),
             },
           );
         },

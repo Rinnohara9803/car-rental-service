@@ -14,6 +14,7 @@ class BookingResponse with ChangeNotifier {
   String bookedFrom;
   String bookedTo;
   double totalPrice;
+  String status;
   final TheCar bookedCar;
 
   BookingResponse({
@@ -21,6 +22,7 @@ class BookingResponse with ChangeNotifier {
     required this.bookedFrom,
     required this.bookedTo,
     required this.totalPrice,
+    required this.status,
     required this.bookedCar,
   });
 
@@ -43,13 +45,37 @@ class BookingResponse with ChangeNotifier {
         ),
       );
       var jsonData = jsonDecode(responseData.body);
-      print(responseData.statusCode);
       if (responseData.statusCode == 200 || responseData.statusCode == 201) {
         bookedFrom = jsonData['booking']['booked_from'];
         notifyListeners();
         bookedTo = jsonData['booking']['booked_to'];
         notifyListeners();
         totalPrice = jsonData['booking']['total_price'];
+        notifyListeners();
+      } else {
+        return Future.error(jsonData['message']);
+      }
+    } on SocketException {
+      return Future.error('No Internet Connection.');
+    } catch (e) {
+      return Future.error(e.toString());
+    }
+  }
+
+  Future<void> updateBookingStatus() async {
+    var accessToken = await AuthService.getUserToken();
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+    try {
+      var responseData = await http.put(
+        Uri.http(Config.authority, 'api/bookings/$id/update-status'),
+        headers: headers,
+      );
+      var jsonData = jsonDecode(responseData.body);
+      if (responseData.statusCode == 200 || responseData.statusCode == 201) {
+        status = jsonData['booking']['status'];
         notifyListeners();
       } else {
         return Future.error(jsonData['message']);

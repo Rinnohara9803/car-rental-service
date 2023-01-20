@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:car_rental_service/pages/about_us_page.dart';
 import 'package:car_rental_service/pages/bookings_page.dart';
 import 'package:car_rental_service/pages/cars_page.dart';
@@ -18,7 +20,9 @@ import '../widgets/sliding_widgets.dart';
 
 class HomePage extends StatefulWidget {
   static String routeName = '/homePage';
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();

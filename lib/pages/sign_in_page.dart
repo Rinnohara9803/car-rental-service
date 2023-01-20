@@ -148,18 +148,6 @@ class _SignInPageState extends State<SignInPage> {
                 const SizedBox(
                   height: 20,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 3,
-                    bottom: 5,
-                  ),
-                  child: Text(
-                    'Email',
-                    style: GoogleFonts.raleway().copyWith(
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ),
                 GeneralTextFormField(
                   hasPrefixIcon: true,
                   hasSuffixIcon: false,
@@ -179,19 +167,7 @@ class _SignInPageState extends State<SignInPage> {
                   autoFocus: false,
                 ),
                 const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 3,
-                    bottom: 5,
-                  ),
-                  child: Text(
-                    'Password',
-                    style: GoogleFonts.raleway().copyWith(
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
+                  height: 20,
                 ),
                 GeneralTextFormField(
                   hasPrefixIcon: true,

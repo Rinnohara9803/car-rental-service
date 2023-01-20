@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:car_rental_service/models/booking.dart';
+import 'package:car_rental_service/providers/booking_response.dart';
 import 'package:car_rental_service/providers/bookings_provider.dart';
 import 'package:car_rental_service/providers/car.dart';
 import 'package:car_rental_service/providers/review.dart';
 import 'package:car_rental_service/providers/reviews_provider.dart';
-import 'package:car_rental_service/services/auth_service.dart';
 import 'package:car_rental_service/utilities/toasts.dart';
 import 'package:car_rental_service/utilities/themes.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -17,20 +17,20 @@ import 'package:responsive_builder/responsive_builder.dart';
 import '../services/shared_services.dart';
 import '../widgets/review_widget.dart';
 
-class CarDetailsPage extends StatefulWidget {
+class BookingCarDetailsPage extends StatefulWidget {
   final dynamic carId;
 
   static String routeName = '/carDetailsPage';
-  const CarDetailsPage({
+  const BookingCarDetailsPage({
     super.key,
     required this.carId,
   });
 
   @override
-  State<CarDetailsPage> createState() => _CarDetailsPageState();
+  State<BookingCarDetailsPage> createState() => _BookingCarDetailsPageState();
 }
 
-class _CarDetailsPageState extends State<CarDetailsPage> {
+class _BookingCarDetailsPageState extends State<BookingCarDetailsPage> {
   TimeOfDay timeOfDay = TimeOfDay.now();
   DateTime? bookFromDate;
   String? _bookFromTime;
@@ -359,8 +359,6 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
     );
   }
 
-  Timer? _timer;
-
   @override
   void initState() {
     _bookFromTime = '';
@@ -383,24 +381,12 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
     _bookFromTime = bookFromTimeString;
 
     super.initState();
-    _timer = Timer.periodic(
-      const Duration(seconds: 1),
-      (_) async {
-        await Provider.of<ReviewsProvider>(context, listen: false)
-            .fetchReviews(widget.carId);
-      },
-    );
-  }
-
-  @override
-  void dispose() {
-    _timer!.cancel();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final car = Provider.of<TheCar>(context);
+    final booking = Provider.of<BookingResponse>(context);
+    final car = booking.bookedCar;
 
     return Scaffold(
       body: FutureBuilder(
@@ -419,18 +405,18 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
             return ResponsiveBuilder(
               builder: (context, si) {
                 if (si.deviceScreenType == DeviceScreenType.desktop) {
-                  return ChangeNotifierProvider<TheCar>.value(
-                    value: car,
+                  return ChangeNotifierProvider<BookingResponse>.value(
+                    value: booking,
                     child: homeView(false, context, myReview),
                   );
                 } else if (si.deviceScreenType == DeviceScreenType.tablet) {
-                  return ChangeNotifierProvider<TheCar>.value(
-                    value: car,
+                  return ChangeNotifierProvider<BookingResponse>.value(
+                    value: booking,
                     child: homeView(false, context, myReview),
                   );
                 } else {
-                  return ChangeNotifierProvider<TheCar>.value(
-                    value: car,
+                  return ChangeNotifierProvider<BookingResponse>.value(
+                    value: booking,
                     child: homeView(true, context, myReview),
                   );
                 }
@@ -443,7 +429,8 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
   }
 
   Widget homeView(bool isMobileView, BuildContext context, bool myReview) {
-    final car = Provider.of<TheCar>(context);
+    final booking = Provider.of<BookingResponse>(context);
+    final car = booking.bookedCar;
 
     return SingleChildScrollView(
       child: Padding(
@@ -459,17 +446,11 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        image(car),
+                        ChangeNotifierProvider<BookingResponse>.value(
+                          value: booking,
+                          child: image(car),
+                        ),
                         imageDetails(car, isMobileView, context),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        reviewWidget(
-                            Provider.of<ReviewsProvider>(context).reviews),
-                        const SizedBox(
-                          height: 60,
-                        ),
-                        ReviewAndRatingWidget(carId: car.id),
                       ],
                     )
                   : Column(
@@ -477,29 +458,11 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            imageWidget(car),
+                            ChangeNotifierProvider<BookingResponse>.value(
+                              value: booking,
+                              child: imageWidget(car),
+                            ),
                             imageDetailWidget(car, isMobileView, context),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Flexible(
-                              flex: 3,
-                              child: ReviewAndRatingWidget(carId: car.id),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            Flexible(
-                              flex: 3,
-                              child: reviewWidget(
-                                Provider.of<ReviewsProvider>(context).reviews,
-                              ),
-                            ),
                           ],
                         ),
                       ],
@@ -508,36 +471,6 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Column reviewWidget(List<Review> reviews) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 5,
-            bottom: 5,
-          ),
-          child: Text(
-            'Reviews',
-            style: GoogleFonts.raleway().copyWith(
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            left: 5,
-            bottom: 5,
-          ),
-          child: ReviewWidget(
-            reviews: reviews.take(3).toList(),
-          ),
-        ),
-      ],
     );
   }
 
@@ -638,26 +571,6 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
                 ),
               ],
             ),
-            const SizedBox(
-              height: 20,
-            ),
-            SizedBox(
-              height: 35,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(
-                    Colors.purple,
-                  ),
-                ),
-                onPressed: () {
-                  showBookingDialog(context, isMobileView, car);
-                },
-                child: Text(
-                  'Proceed To Book',
-                  style: GoogleFonts.raleway().copyWith(),
-                ),
-              ),
-            ),
           ],
         ),
       ),
@@ -665,12 +578,17 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
   }
 
   Widget imageWidget(TheCar car) {
+    final booking = Provider.of<BookingResponse>(context);
     return Flexible(
-      child: image(car),
+      child: ChangeNotifierProvider<BookingResponse>.value(
+        value: booking,
+        child: imageWidget(car),
+      ),
     );
   }
 
   Widget image(TheCar car) {
+    final booking = Provider.of<BookingResponse>(context);
     return Stack(
       children: [
         ClipRRect(
@@ -692,266 +610,56 @@ class _CarDetailsPageState extends State<CarDetailsPage> {
             ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-class ReviewAndRatingWidget extends StatefulWidget {
-  final dynamic carId;
-  const ReviewAndRatingWidget({super.key, required this.carId});
-
-  @override
-  State<ReviewAndRatingWidget> createState() => _ReviewAndRatingWidgetState();
-}
-
-class _ReviewAndRatingWidgetState extends State<ReviewAndRatingWidget> {
-  final _formKey = GlobalKey<FormState>();
-  String? _review;
-  int? _rating;
-
-  int _newRating = 2;
-  @override
-  Widget build(BuildContext context) {
-    final myFreakinReview = Provider.of<ReviewsProvider>(context).myReview;
-    _review = myFreakinReview.review;
-    _rating = myFreakinReview.rating;
-
-    return Column(
-      children: [
-        Stack(
-          clipBehavior: Clip.none,
-          children: [
-            DottedBorder(
-              child: Container(
-                height: 80,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topRight,
-                    end: Alignment.bottomLeft,
-                    colors: [
-                      Colors.lightBlueAccent,
-                      ThemeClass.primaryColor,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(
-                    2,
+        if (SharedService.role == 'User' && booking.status == 'active')
+          Positioned(
+            right: 5,
+            top: 10,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(
+                5,
+              ),
+              child: Material(
+                color: Colors.black26, // button color
+                child: TextButton(
+                  onPressed: () async {
+                    await booking.updateBookingStatus().then((value) {
+                      FlutterToasts.showNormalToast(
+                          context, 'Booking Status updated successfully.');
+                    }).catchError((e) {
+                      FlutterToasts.showErrorToast(context, e.toString());
+                    });
+                  },
+                  child: Text(
+                    'Return Car',
+                    style: GoogleFonts.raleway().copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ),
-            const Positioned(
-              right: 0,
-              left: 0,
-              top: -42,
-              child: CircleAvatar(
-                radius: 42,
-                backgroundColor: Colors.white,
-                child: CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.black12,
-                  backgroundImage: AssetImage(
-                    'images/user.png',
+          ),
+        Positioned(
+          left: 5,
+          top: 10,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+              5,
+            ),
+            child: Material(
+              color: booking.status == 'active' ? Colors.green : Colors.red,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  booking.status,
+                  style: GoogleFonts.raleway().copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ),
-            Positioned(
-              bottom: 6,
-              right: 0,
-              left: 0,
-              child: Text(
-                'Review By ${SharedService.userName}',
-                style: GoogleFonts.raleway().copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-        Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              if (Provider.of<ReviewsProvider>(context).haveIReviewed)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Your rating: ',
-                      style: GoogleFonts.raleway().copyWith(),
-                    ),
-                    RatingBarIndicator(
-                      rating: _rating!.toDouble(),
-                      itemBuilder: (context, index) => const Icon(
-                        Icons.star,
-                        color: Colors.amber,
-                      ),
-                      itemCount: 5,
-                      itemSize: 15.0,
-                      direction: Axis.horizontal,
-                    ),
-                  ],
-                ),
-              RatingBar.builder(
-                initialRating: _newRating.toDouble(),
-                minRating: 1,
-                glow: true,
-                glowRadius: 0.5,
-                direction: Axis.horizontal,
-                allowHalfRating: false,
-                itemCount: 5,
-                itemPadding: const EdgeInsets.symmetric(
-                  horizontal: 5.0,
-                ),
-                itemBuilder: (context, _) => Icon(
-                  Icons.star,
-                  color: ThemeClass.primaryColor,
-                ),
-                updateOnDrag: true,
-                onRatingUpdate: (rating) {
-                  _newRating = rating.toInt();
-                },
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-                child: TextFormField(
-                  initialValue:
-                      !Provider.of<ReviewsProvider>(context, listen: true)
-                              .haveIReviewed
-                          ? ''
-                          : Provider.of<ReviewsProvider>(context, listen: true)
-                              .myReview
-                              .review,
-                  maxLines: 3,
-                  key: const ValueKey(
-                    'Write your review',
-                  ),
-                  decoration: const InputDecoration(
-                    labelText: 'Your review',
-                  ),
-                  validator: (value) {
-                    if (value!.trim().isEmpty) {
-                      return 'Please provide your review.';
-                    } else if (value.trim().length < 5) {
-                      return 'Review is too short.';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _review = value!;
-                  },
-                  onChanged: (value) {
-                    _review = value;
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (Provider.of<ReviewsProvider>(context, listen: true)
-                      .haveIReviewed)
-                    TextButton(
-                      onPressed: () async {
-                        Provider.of<ReviewsProvider>(context, listen: false)
-                            .deleteReview(widget.carId)
-                            .then((value) {
-                          _review = '';
-                          _rating = 2;
-                          FlutterToasts.showNormalToast(
-                              context, 'Your review has been deleted.');
-                        }).catchError((e) {
-                          FlutterToasts.showErrorToast(context, e.toString());
-                        });
-                      },
-                      child: Text(
-                        'Delete your review',
-                        style: GoogleFonts.raleway().copyWith(),
-                      ),
-                    ),
-                  if (!Provider.of<ReviewsProvider>(context, listen: true)
-                      .haveIReviewed)
-                    const SizedBox(),
-                  TextButton(
-                    onPressed: Provider.of<ReviewsProvider>(context)
-                            .haveIReviewed
-                        ? () async {
-                            if (!_formKey.currentState!.validate()) {
-                              return;
-                            }
-                            _formKey.currentState!.save();
-
-                            Review review = Review(
-                              id: '',
-                              rating: _newRating,
-                              review: _review!,
-                              userId: '',
-                              user: '',
-                            );
-
-                            await Provider.of<ReviewsProvider>(context,
-                                    listen: false)
-                                .updateReview(
-                                    myFreakinReview.id, review, widget.carId)
-                                .then((value) {
-                              FlutterToasts.showNormalToast(
-                                  context, 'Review updated successfully.');
-                            }).catchError((e) {
-                              FlutterToasts.showErrorToast(
-                                  context, e.toString());
-                            });
-                          }
-                        : () async {
-                            if (!_formKey.currentState!.validate()) {
-                              return;
-                            }
-                            _formKey.currentState!.save();
-                            Review review = Review(
-                              id: '',
-                              rating: _newRating,
-                              review: _review!,
-                              userId: '',
-                              user: '',
-                            );
-                            await Provider.of<ReviewsProvider>(context,
-                                    listen: false)
-                                .createReview(
-                              review,
-                              widget.carId,
-                            )
-                                .then((value) {
-                              FlutterToasts.showNormalToast(
-                                  context, 'Review posted successfully.');
-                            }).catchError((e) {
-                              FlutterToasts.showErrorToast(
-                                  context, e.toString());
-                            });
-                          },
-                    child: Text(
-                      Provider.of<ReviewsProvider>(context).haveIReviewed
-                          ? 'Update your review'
-                          : 'Post your review',
-                      style: GoogleFonts.raleway().copyWith(),
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ),
         ),
       ],

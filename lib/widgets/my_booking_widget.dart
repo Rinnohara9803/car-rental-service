@@ -1,4 +1,4 @@
-import 'package:car_rental_service/models/booking_response.dart';
+import 'package:car_rental_service/providers/booking_response.dart';
 import 'package:car_rental_service/providers/bookings_provider.dart';
 import 'package:car_rental_service/providers/car.dart';
 import 'package:car_rental_service/widgets/update_booking_widget.dart';
@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:khalti_flutter/khalti_flutter.dart';
 import 'package:provider/provider.dart';
 
+import '../models/payment.dart';
+import '../pages/booking_car_details_page.dart';
 import '../pages/car_details_page.dart';
 import '../utilities/toasts.dart';
 
@@ -54,8 +56,14 @@ class MyBookingWidget extends StatelessWidget {
           PaymentPreference.mobileBanking,
           PaymentPreference.sct,
         ],
-        onSuccess: (su) async {
-          print(su);
+        onSuccess: (suJsonData) async {
+          print(suJsonData);
+          Payment payment = Payment(
+            id: suJsonData.idx,
+            paymentToken: suJsonData.token,
+            mobile: suJsonData.mobile,
+            booking: booking,
+          );
         },
         onFailure: (fa) {
           FlutterToasts.showErrorToast(context, 'Payment failed!!!');
@@ -73,9 +81,11 @@ class MyBookingWidget extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChangeNotifierProvider<TheCar>.value(
-              value: booking.bookedCar,
-              child: const CarDetailsPage(),
+            builder: (context) => ChangeNotifierProvider<BookingResponse>.value(
+              value: booking,
+              child: BookingCarDetailsPage(
+                carId: booking.bookedCar.id,
+              ),
             ),
           ),
         );
@@ -114,101 +124,105 @@ class MyBookingWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                  ChangeNotifierProvider<BookingResponse>.value(
-                    value: booking,
-                    child: UpdateBookingWidget(
-                      isMobileView: isMobileView,
-                      booking: booking,
-                    ),
-                  ),
-                  Positioned(
-                    right: 40,
-                    top: 5,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        5,
+                  if (booking.status == 'active')
+                    ChangeNotifierProvider<BookingResponse>.value(
+                      value: booking,
+                      child: UpdateBookingWidget(
+                        isMobileView: isMobileView,
+                        booking: booking,
                       ),
-                      child: Material(
-                        color: Colors.red, // button color
-                        child: InkWell(
-                          splashColor: Colors.red, // inkwell color
-                          child: const SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: Icon(
-                              Icons.delete,
-                              color: Colors.white,
-                              size: 20,
+                    ),
+                  if (booking.status == 'active')
+                    Positioned(
+                      right: 40,
+                      top: 5,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          5,
+                        ),
+                        child: Material(
+                          color: Colors.black26, // button color
+                          child: InkWell(
+                            splashColor: Colors.red, // inkwell color
+                            child: const SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: Icon(
+                                Icons.delete,
+                                color: Colors.redAccent,
+                                size: 20,
+                              ),
                             ),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Are you Sure?'),
+                                    content: const Text(
+                                      'Do you want to cancel this booking?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop(false);
+                                        },
+                                        child: const Text('No'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Provider.of<BookingsProvider>(context,
+                                                  listen: false)
+                                              .cancelBooking(booking.id)
+                                              .then((value) {
+                                            FlutterToasts.showNormalToast(
+                                                context,
+                                                'Booking cancelled successfully.');
+                                            Navigator.of(context).pop();
+                                          }).catchError((e) {
+                                            FlutterToasts.showErrorToast(
+                                                context, e.toString());
+                                          });
+                                        },
+                                        child: const Text('Yes'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
                           ),
-                          onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: const Text('Are you Sure?'),
-                                  content: const Text(
-                                    'Do you want to cancel this booking?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop(false);
-                                      },
-                                      child: const Text('No'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Provider.of<BookingsProvider>(context,
-                                                listen: false)
-                                            .cancelBooking(booking.id)
-                                            .then((value) {
-                                          FlutterToasts.showNormalToast(context,
-                                              'Booking cancelled successfully.');
-                                          Navigator.of(context).pop();
-                                        }).catchError((e) {
-                                          FlutterToasts.showErrorToast(
-                                              context, e.toString());
-                                        });
-                                      },
-                                      child: const Text('Yes'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
                         ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    right: 75,
-                    top: 5,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(
-                        5,
-                      ),
-                      child: Material(
-                        color: Colors.blue, // button color
-                        child: InkWell(
-                          splashColor: Colors.blue, // inkwell color
-                          child: const SizedBox(
-                            width: 30,
-                            height: 30,
-                            child: Icon(
-                              Icons.payment,
-                              color: Colors.white,
-                              size: 20,
+                  if (booking.status == 'active')
+                    Positioned(
+                      right: 75,
+                      top: 5,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                          5,
+                        ),
+                        child: Material(
+                          color: Colors.black26, // button color
+                          child: InkWell(
+                            splashColor: Colors.blueAccent, // inkwell color
+                            child: const SizedBox(
+                              width: 30,
+                              height: 30,
+                              child: Icon(
+                                Icons.payment,
+                                color: Colors.blueAccent,
+                                size: 20,
+                              ),
                             ),
+                            onTap: () {
+                              initKhaltiPayment(booking);
+                            },
                           ),
-                          onTap: () {
-                            initKhaltiPayment(booking);
-                          },
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

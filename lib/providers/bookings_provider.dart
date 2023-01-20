@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:car_rental_service/models/booking.dart';
-import 'package:car_rental_service/models/booking_response.dart';
+import 'package:car_rental_service/providers/booking_response.dart';
 import 'package:car_rental_service/providers/car.dart';
 import 'package:flutter/cupertino.dart';
 // ignore: depend_on_referenced_packages
@@ -43,6 +43,7 @@ class BookingsProvider with ChangeNotifier {
           id: jsonData['Booking']['id'],
           bookedFrom: jsonData['Booking']['booked_from'],
           bookedTo: jsonData['Booking']['booked_to'],
+          status: jsonData['Booking']['status'],
           totalPrice: jsonData['Booking']['total_price'],
           bookedCar: TheCar(
             id: jsonData['Booking']['car']['id'],
@@ -51,6 +52,7 @@ class BookingsProvider with ChangeNotifier {
             numberPlate: jsonData['Booking']['car']['number_plate'],
             horsePower: jsonData['Booking']['car']['horsepower'],
             mileage: jsonData['Booking']['car']['mileage'],
+            rating: jsonData['Booking']['car']['rating'],
             price: jsonData['Booking']['car']['price'],
             image: jsonData['Booking']['car']['links']['image'],
           ),
@@ -80,8 +82,7 @@ class BookingsProvider with ChangeNotifier {
       );
 
       var jsonData = jsonDecode(responseData.body);
-      print(responseData.statusCode);
-      print(jsonData);
+
       if (responseData.statusCode == 400) {
         return Future.error(jsonData['message']);
       }
@@ -96,6 +97,7 @@ class BookingsProvider with ChangeNotifier {
               bookedFrom: booking['booked_from'],
               bookedTo: booking['booked_to'],
               totalPrice: booking['total_price'],
+              status: booking['status'],
               bookedCar: TheCar(
                 id: booking['car']['id'],
                 name: booking['car']['name'],
@@ -103,6 +105,7 @@ class BookingsProvider with ChangeNotifier {
                 numberPlate: booking['car']['number_plate'],
                 horsePower: booking['car']['horsepower'],
                 mileage: booking['car']['mileage'],
+                rating: booking['car']['rating'],
                 price: booking['car']['price'],
                 image: booking['car']['links']['image'],
               ),

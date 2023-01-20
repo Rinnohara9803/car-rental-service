@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
 
+import '../pages/profile_page.dart';
 import '../utilities/themes.dart';
 
 class ProfileWidget extends StatelessWidget {
@@ -23,11 +24,17 @@ class ProfileWidget extends StatelessWidget {
       animateMenuItems: false,
       menuWidth: 200,
       menuItems: [
-        FocusedMenuItem(
-          title: const Text('Profile'),
-          onPressed: () {},
-        ),
-        if (SharedService.email == 'admin@email.com')
+        if (SharedService.role != 'Admin')
+          FocusedMenuItem(
+            title: const Text('Profile'),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                ProfilePage.routeName,
+              );
+            },
+          ),
+        if (SharedService.role == 'Admin')
           FocusedMenuItem(
             title: const Text('Manage Cars'),
             onPressed: () {
@@ -37,16 +44,16 @@ class ProfileWidget extends StatelessWidget {
               );
             },
           ),
-        if (SharedService.email != 'admin@email.com')
-          FocusedMenuItem(
-            title: const Text('My Payments'),
-            onPressed: () {
-              Navigator.pushNamed(
-                context,
-                MyPaymentsPage.routeName,
-              );
-            },
-          ),
+        // if (SharedService.role != 'Admin')
+        //   FocusedMenuItem(
+        //     title: const Text('My Payments'),
+        //     onPressed: () {
+        //       Navigator.pushNamed(
+        //         context,
+        //         MyPaymentsPage.routeName,
+        //       );
+        //     },
+        //   ),
         FocusedMenuItem(
           title: const Text('Log Out'),
           backgroundColor: Colors.redAccent,

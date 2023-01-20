@@ -1,4 +1,4 @@
-import 'package:car_rental_service/models/booking_response.dart';
+import 'package:car_rental_service/providers/booking_response.dart';
 import 'package:car_rental_service/pages/about_us_page.dart';
 import 'package:car_rental_service/pages/cars_page.dart';
 import 'package:car_rental_service/providers/bookings_provider.dart';

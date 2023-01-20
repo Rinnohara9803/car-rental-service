@@ -73,6 +73,7 @@ class _AddCarsPageState extends State<AddCarsPage> {
         _horsePowerController.text,
       ),
       mileage: int.parse(_horsePowerController.text),
+      rating: '',
       price: int.parse(
         _priceController.text,
       ),

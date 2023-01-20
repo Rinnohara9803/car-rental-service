@@ -66,6 +66,7 @@ class _UpdateCarDetailsPageState extends State<UpdateCarDetailsPage> {
         _horsePowerController!.text,
       ),
       mileage: int.parse(_mileageController!.text),
+      rating: '',
       price: int.parse(
         _priceController!.text,
       ),

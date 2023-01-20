@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../models/booking_response.dart';
+import '../providers/booking_response.dart';
 import '../utilities/toasts.dart';
 
 class UpdateBookingWidget extends StatefulWidget {
@@ -65,15 +65,15 @@ class _UpdateBookingWidgetState extends State<UpdateBookingWidget> {
           5,
         ),
         child: Material(
-          color: Colors.purple,
+          color: Colors.black26,
           child: InkWell(
-            splashColor: Colors.purple,
+            splashColor: Colors.purpleAccent,
             child: const SizedBox(
               width: 30,
               height: 30,
               child: Icon(
                 Icons.edit,
-                color: Colors.white,
+                color: Colors.purpleAccent,
                 size: 20,
               ),
             ),

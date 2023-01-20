@@ -62,6 +62,7 @@ class AuthService {
         ),
       );
       var jsonData = jsonDecode(responseData.body);
+      print(responseData.statusCode);
 
       if (responseData.statusCode == 200 || responseData.statusCode == 201) {
         final prefs = await SharedPreferences.getInstance();
@@ -75,9 +76,21 @@ class AuthService {
           jsonData['user']['name'],
         );
         await prefs.setString(
+          'email',
+          jsonData['user']['email'],
+        );
+        await prefs.setString(
           'user_id',
           jsonData['user']['id'].toString(),
         );
+        for (var i in jsonData['user']['role']) {
+          await prefs.setString(
+            'role',
+            i['name'],
+          );
+          SharedService.role = i['name'];
+        }
+
         SharedService.userName = jsonData['user']['name'];
         SharedService.email = jsonData['user']['email'];
         SharedService.userID = jsonData['user']['id'].toString();
@@ -108,9 +121,23 @@ class AuthService {
     return userName;
   }
 
+  static Future<String?> getUserEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var email = prefs.getString('email');
+
+    return email;
+  }
+
   static Future<String?> getUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userId = prefs.getString('user_id');
+
+    return userId;
+  }
+
+  static Future<String?> getUserRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userId = prefs.getString('role');
 
     return userId;
   }
@@ -141,6 +168,45 @@ class AuthService {
       }
     } on SocketException {
       return Future.error('No Internet Connection');
+    } catch (e) {
+      return Future.error(e.toString());
+    }
+  }
+
+  static Future<void> updateUserDetails(
+      String newEmail, String newUsername) async {
+    print(newEmail);
+    print(newUsername);
+    var accessToken = await AuthService.getUserToken();
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "Authorization": "Bearer $accessToken",
+    };
+    try {
+      var responseData = await http.put(
+        Uri.http(Config.authority, 'api/auth/user/update'),
+        headers: headers,
+        body: jsonEncode(
+          {
+            "name": newUsername,
+            "email": newEmail,
+          },
+        ),
+      );
+
+      var jsonData = json.decode(responseData.body);
+
+      if (responseData.statusCode == 200 || responseData.statusCode == 201) {
+        print(responseData.statusCode);
+        print(jsonData);
+        SharedService.email = jsonData['user']['email'];
+        SharedService.userName = jsonData['user']['name'];
+        return;
+      } else {
+        return Future.error(jsonData['message']);
+      }
+    } on SocketException {
+      return Future.error('No Internet Connection.');
     } catch (e) {
       return Future.error(e.toString());
     }
