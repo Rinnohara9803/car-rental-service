@@ -135,22 +135,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          ElevatedButton.icon(
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.purple,
-                              ),
-                            ),
-                            onPressed: () {},
-                            icon: const Icon(Icons.email),
-                            label: Text(
-                              'Book Now',
-                              style: GoogleFonts.raleway().copyWith(),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
+                          
                           seeAllCars(),
                         ],
                       ),
@@ -195,26 +180,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                SizedBox(
-                                  height: 38,
-                                  child: ElevatedButton.icon(
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                        Colors.purple,
-                                      ),
-                                    ),
-                                    onPressed: () {},
-                                    icon: const Icon(Icons.email),
-                                    label: Text(
-                                      'Book Now',
-                                      style: GoogleFonts.raleway().copyWith(),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
                                 seeAllCars(),
                               ],
                             )
